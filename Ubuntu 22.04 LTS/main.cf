@@ -1,0 +1,73 @@
+# Postfix configuration file in smarthost(relayhost) by Thelogh
+#https://www.alldiscoveries.com/configuring-relayhost-smarthost-ubuntu-server-22-04-lts-with-gmail-or-another-email-server-via-postfix/
+#For all requests write on the blog
+#REPOSITORY
+#https://github.com/thelogh/postfix-smarthost
+# See /usr/share/postfix/main.cf.dist for a commented, more complete version
+
+
+# Debian specific:  Specifying a file name will cause the first
+# line of that file to be used as the name.  The Debian default
+# is /etc/mailname.
+#myorigin = /etc/mailname
+
+smtpd_banner = $myhostname ESMTP $mail_name (Ubuntu)
+biff = no
+
+# appending .domain is the MUA's job.
+append_dot_mydomain = no
+
+# Uncomment the next line to generate "delayed mail" warnings
+#delay_warning_time = 4h
+
+readme_directory = no
+
+# See http://www.postfix.org/COMPATIBILITY_README.html -- default to 3.6 on
+# fresh installs.
+compatibility_level = 3.6
+
+
+
+# TLS parameters
+smtpd_tls_cert_file=/etc/ssl/certs/ssl-cert-snakeoil.pem
+smtpd_tls_key_file=/etc/ssl/private/ssl-cert-snakeoil.key
+smtpd_tls_security_level=may
+
+smtp_tls_CApath=/etc/ssl/certs
+smtp_tls_security_level=may
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+
+
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+myhostname = hub
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = /etc/mailname
+mydestination = myserver.local, $myhostname, hub, localhost.localdomain, localhost
+#DESTINATION SERVER
+relayhost = smtp.gmail.com:587
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128
+mailbox_size_limit = 0
+recipient_delimiter = +
+#ONLY ENABLE FOR INTERNAL SERVER REQUESTS
+inet_interfaces = loopback-only
+#ONLY ENABLE IP PROTOCOL IPV4 TO PREVENT ERRORS ON IPV6
+inet_protocols = ipv4
+
+#ENABLE AUTHENTICATION
+smtp_sasl_auth_enable = yes
+#DISALLOW METHODS THAT ALLOW ANONYMOUS AUTHENTICATION
+smtp_sasl_security_options = noanonymous
+#static:USERNAME:PASSWORD
+#smtp_sasl_password_maps = static:you@gmail.com:password-gmail-here
+#MAPS FILE
+smtp_sasl_password_maps = hash:/etc/postfix/sasl_passwd
+
+#I CHANGE THE ENVELOPE SENDER ADDRESSES AND TO HEADER SENDER
+sender_canonical_classes = envelope_sender, header_sender
+#CANONICAL MAPS
+sender_canonical_maps = regexp:/etc/postfix/sender_canonical
+#REWRITING IN THE HEADER
+smtp_header_checks = regexp:/etc/postfix/header_checks
+
+

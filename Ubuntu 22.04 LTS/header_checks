@@ -1,0 +1,6 @@
+# Postfix configuration file in smarthost(relayhost) by Thelogh
+#https://www.alldiscoveries.com/configuring-relayhost-smarthost-ubuntu-server-22-04-lts-with-gmail-or-another-email-server-via-postfix/
+#For all requests write on the blog
+#REPOSITORY
+#https://github.com/thelogh/postfix-smarthost
+/From:.*/ REPLACE From: Myserver <you@gmail.com>
